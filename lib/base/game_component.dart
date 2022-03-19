@@ -18,6 +18,9 @@ abstract class GameComponent extends PositionComponent
   /// When true this component render above all components in game.
   bool aboveComponents = false;
 
+  /// When true this component render above all components in game.
+  bool belowComponents = false;
+
   /// Map available to store times that can be used to control the frequency of any action.
   Map<String, IntervalTick> _timers = Map();
 
@@ -120,8 +123,12 @@ abstract class GameComponent extends PositionComponent
 
   @override
   int get priority {
-    if (aboveComponents && hasGameRef) {
-      return LayerPriority.getAbovePriority(gameRef.highestPriority);
+    if (hasGameRef) {
+      if (aboveComponents) {
+        return LayerPriority.getAbovePriority(gameRef.highestPriority);
+      } else if (belowComponents) {
+        return LayerPriority.getBelowPriority(_getBottomPriority());
+      }
     }
     return LayerPriority.getComponentPriority(_getBottomPriority());
   }

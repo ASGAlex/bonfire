@@ -1,7 +1,12 @@
 class LayerPriority {
-  static const int BACKGROUND = 10;
+  static const int BACKGROUND = -10;
+  static const int BELOW = 0;
   static const int MAP = 20;
   static const int _COMPONENTS = 30;
+
+  static int getBelowPriority(int bottom) {
+    return BELOW + bottom;
+  }
 
   static int getComponentPriority(int bottom) {
     return _COMPONENTS + bottom;

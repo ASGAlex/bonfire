@@ -24,17 +24,23 @@ class Tile extends GameComponent with UseAssetsLoader {
     this.properties,
     double offsetX = 0,
     double offsetY = 0,
+    bool bleedingPixel = true,
   }) {
-    generateRectWithBleedingPixel(
-      position,
-      size,
-      offsetX: offsetX,
-      offsetY: offsetY,
-    );
+    if (bleedingPixel) {
+      generateRectWithBleedingPixel(
+        position,
+        size,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      );
+    }
     if (spritePath.isNotEmpty) {
       loader?.add(
         AssetToLoad(Sprite.load(spritePath), (value) => this._sprite = value),
       );
+    } else {
+      this.position = position;
+      this.size = size;
     }
 
     _positionText = position;
@@ -48,15 +54,21 @@ class Tile extends GameComponent with UseAssetsLoader {
     this.properties,
     double offsetX = 0,
     double offsetY = 0,
+    bool bleedingPixel = true,
   }) {
     id = '${position.x}/${position.y}';
     this._sprite = sprite;
-    generateRectWithBleedingPixel(
-      position,
-      size,
-      offsetX: offsetX,
-      offsetY: offsetY,
-    );
+    if (bleedingPixel) {
+      generateRectWithBleedingPixel(
+        position,
+        size,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      );
+    } else {
+      this.position = position;
+      this.size = size;
+    }
 
     _positionText = position;
   }
@@ -69,15 +81,21 @@ class Tile extends GameComponent with UseAssetsLoader {
     this.properties,
     double offsetX = 0,
     double offsetY = 0,
+    bool bleedingPixel = true,
   }) {
     id = '${position.x}/${position.y}';
     loader?.add(AssetToLoad(sprite, (value) => this._sprite = value));
-    generateRectWithBleedingPixel(
-      position,
-      size,
-      offsetX: offsetX,
-      offsetY: offsetY,
-    );
+    if (bleedingPixel) {
+      generateRectWithBleedingPixel(
+        position,
+        size,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      );
+    } else {
+      this.position = position;
+      this.size = size;
+    }
 
     _positionText = position;
   }
@@ -90,15 +108,21 @@ class Tile extends GameComponent with UseAssetsLoader {
     this.properties,
     double offsetX = 0,
     double offsetY = 0,
+    bool bleedingPixel = true,
   }) {
     id = '${position.x}/${position.y}';
     this._animation = animation;
-    generateRectWithBleedingPixel(
-      position,
-      size,
-      offsetX: offsetX,
-      offsetY: offsetY,
-    );
+    if (bleedingPixel) {
+      generateRectWithBleedingPixel(
+        position,
+        size,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      );
+    } else {
+      this.position = position;
+      this.size = size;
+    }
 
     _positionText = position;
   }
