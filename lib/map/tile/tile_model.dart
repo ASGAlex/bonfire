@@ -1,4 +1,5 @@
 import 'package:bonfire/base/bonfire_game_interface.dart';
+import 'package:bonfire/bonfire.dart';
 import 'package:bonfire/collision/collision_area.dart';
 import 'package:bonfire/map/map_assets_manager.dart';
 import 'package:bonfire/map/tile/tile.dart';
@@ -6,6 +7,8 @@ import 'package:bonfire/map/tile/tile_with_collision.dart';
 import 'package:bonfire/util/controlled_update_animation.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/widgets.dart';
+
+import '../../tiled/model/tiled_item_tile_set.dart';
 
 class TileModelSprite {
   final String path;
@@ -116,6 +119,7 @@ class TileModel {
   final double angle;
   final bool isFlipVertical;
   final bool isFlipHorizontal;
+  TileBuilder? builder;
   String id = '';
 
   Offset center = Offset.zero;
@@ -135,6 +139,7 @@ class TileModel {
     this.angle = 0,
     this.isFlipVertical = false,
     this.isFlipHorizontal = false,
+    this.builder,
   }) {
     center = Offset(
       (x * width) + (width / 2.0),
@@ -148,6 +153,28 @@ class TileModel {
   double get bottom => (y * height) + height;
 
   Tile getTile(BonfireGameInterface gameRef) {
+    final tile = builder?.call(
+        TiledItemTileSet(
+            collisions: collisions,
+            angle: angle,
+            sprite: sprite,
+            animation: animation,
+            isFlipHorizontal: isFlipHorizontal,
+            isFlipVertical: isFlipVertical,
+            properties: properties,
+            type: type),
+        Vector2(x, y),
+        Vector2(offsetX, offsetY));
+    if (tile != null) {
+      tile.angle = angle;
+      tile.isFlipHorizontal = isFlipHorizontal;
+      tile.isFlipVertical = isFlipVertical;
+
+      tile.gameRef = gameRef;
+      tile.id = id;
+      return tile;
+    }
+
     if (animation == null) {
       if (collisions?.isNotEmpty == true) {
         final tile = TileWithCollision.fromSprite(

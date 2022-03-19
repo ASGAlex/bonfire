@@ -30,6 +30,9 @@ import 'model/tiled_object_properties.dart';
 typedef ObjectBuilder = GameComponent Function(
     TiledObjectProperties properties);
 
+typedef TileBuilder = Tile Function(
+    TiledItemTileSet properties, Vector2 position, Vector2 offset);
+
 class TiledWorldMap {
   static const ORIENTATION_SUPPORTED = 'orthogonal';
   static const ABOVE_TYPE = 'above';
@@ -56,6 +59,7 @@ class TiledWorldMap {
   double _tileHeightOrigin = 0;
   bool fromServer = false;
   Map<String, ObjectBuilder> _objectsBuilder = Map();
+  Map<String, TileBuilder> _tileBuilder = Map();
   Map<String, TileModelSprite> _tileModelSpriteCache = Map();
   int countTileLayer = 0;
   int countImageLayer = 0;
@@ -66,8 +70,10 @@ class TiledWorldMap {
     this.onError,
     this.tileSizeToUpdate = 0,
     Map<String, ObjectBuilder>? objectsBuilder,
+    Map<String, TileBuilder>? tileBuilder,
   }) {
     _objectsBuilder = objectsBuilder ?? Map();
+    _tileBuilder = tileBuilder ?? Map();
     _basePath = path.replaceAll(path.split('/').last, '');
     fromServer = path.contains('http');
     _reader = TiledJsonReader(_basePathFlame + path);
@@ -75,6 +81,10 @@ class TiledWorldMap {
 
   void registerObject(String name, ObjectBuilder builder) {
     _objectsBuilder[name] = builder;
+  }
+
+  void registerTileObject(String name, TileBuilder builder) {
+    _tileBuilder[name] = builder;
   }
 
   Future<TiledWorldData> build() async {
@@ -147,10 +157,12 @@ class TiledWorldMap {
       if (tile != 0) {
         var data = _getDataTile(tile);
         if (data != null) {
-          if (data.type?.contains(ABOVE_TYPE) ?? false) {
+          final type = data.type;
+          if (type?.contains(ABOVE_TYPE) ?? false) {
             _addGameDecorationAbove(data, count, tileLayer);
           } else {
-            _addTile(data, count, tileLayer, offsetX, offsetY);
+            _addTile(data, count, tileLayer, offsetX, offsetY,
+                builder: _tileBuilder[type]);
           }
         }
       }
@@ -163,8 +175,9 @@ class TiledWorldMap {
     int count,
     TileLayer tileLayer,
     double offsetX,
-    double offsetY,
-  ) {
+    double offsetY, {
+    TileBuilder? builder,
+  }) {
     _tiles.add(
       TileModel(
         x: _getX(count, tileLayer.width?.toInt() ?? 0),
@@ -181,6 +194,7 @@ class TiledWorldMap {
         angle: data.angle,
         isFlipVertical: data.isFlipVertical,
         isFlipHorizontal: data.isFlipHorizontal,
+        builder: builder,
       ),
     );
   }
