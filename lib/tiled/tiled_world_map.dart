@@ -33,6 +33,9 @@ typedef ObjectBuilder = GameComponent Function(
 typedef TileBuilder = Tile Function(
     TiledItemTileSet properties, Vector2 position, Vector2 offset);
 
+typedef DecorationBuilder = GameDecoration Function(
+    TiledItemTileSet properties, Vector2 position, Vector2 offset);
+
 class TiledWorldMap {
   static const ORIENTATION_SUPPORTED = 'orthogonal';
   static const ABOVE_TYPE = 'above';
@@ -60,6 +63,7 @@ class TiledWorldMap {
   bool fromServer = false;
   Map<String, ObjectBuilder> _objectsBuilder = Map();
   Map<String, TileBuilder> _tileBuilder = Map();
+  Map<String, DecorationBuilder> _decorationBuilder = Map();
   Map<String, TileModelSprite> _tileModelSpriteCache = Map();
   int countTileLayer = 0;
   int countImageLayer = 0;
@@ -71,9 +75,11 @@ class TiledWorldMap {
     this.tileSizeToUpdate = 0,
     Map<String, ObjectBuilder>? objectsBuilder,
     Map<String, TileBuilder>? tileBuilder,
+    Map<String, DecorationBuilder>? decorationBuilder,
   }) {
     _objectsBuilder = objectsBuilder ?? Map();
     _tileBuilder = tileBuilder ?? Map();
+    _decorationBuilder = decorationBuilder ?? Map();
     _basePath = path.replaceAll(path.split('/').last, '');
     fromServer = path.contains('http');
     _reader = TiledJsonReader(_basePathFlame + path);
@@ -85,6 +91,10 @@ class TiledWorldMap {
 
   void registerTileObject(String name, TileBuilder builder) {
     _tileBuilder[name] = builder;
+  }
+
+  void registerDecorationObject(String name, DecorationBuilder builder) {
+    _decorationBuilder[name] = builder;
   }
 
   Future<TiledWorldData> build() async {
@@ -158,11 +168,29 @@ class TiledWorldMap {
         var data = _getDataTile(tile);
         if (data != null) {
           final type = data.type;
-          if (type?.contains(ABOVE_TYPE) ?? false) {
-            _addGameDecorationAbove(data, count, tileLayer);
+          final buildTile = _tileBuilder[type];
+          final buildDeco = _decorationBuilder[type];
+          if (buildTile == null && buildDeco == null) {
+            if (type?.contains(ABOVE_TYPE) ?? false) {
+              _addGameDecorationAbove(data, count, tileLayer);
+            } else {
+              _addTile(data, count, tileLayer, offsetX, offsetY);
+            }
           } else {
-            _addTile(data, count, tileLayer, offsetX, offsetY,
-                builder: _tileBuilder[type]);
+            if (buildTile != null) {
+              _addTile(data, count, tileLayer, offsetX, offsetY,
+                  builder: buildTile);
+            } else if (buildDeco != null) {
+              final decoration = buildDeco.call(
+                  data,
+                  Vector2(
+                      _getX(count, (tileLayer.width?.toInt()) ?? 0) *
+                          _tileWidth,
+                      _getY(count, (tileLayer.width?.toInt()) ?? 0) *
+                          _tileWidth),
+                  Vector2(offsetX, offsetY));
+              _components.add(decoration);
+            }
           }
         }
       }

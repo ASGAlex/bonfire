@@ -18,7 +18,7 @@ abstract class GameComponent extends PositionComponent
   /// When true this component render above all components in game.
   bool aboveComponents = false;
 
-  /// When true this component render above all components in game.
+  /// When true this component render below all components in game, except background
   bool belowComponents = false;
 
   /// Map available to store times that can be used to control the frequency of any action.
