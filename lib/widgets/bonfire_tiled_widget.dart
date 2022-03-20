@@ -56,33 +56,36 @@ class BonfireTiledWidget extends StatefulWidget {
   final AnimatedSwitcherTransitionBuilder transitionBuilder;
   final Duration? progressTransitionDuration;
   final GameColorFilter? colorFilter;
+  final GameBuilder? customGameBuilder;
 
-  const BonfireTiledWidget({
-    Key? key,
-    required this.map,
-    this.joystick,
-    this.player,
-    this.interface,
-    this.background,
-    this.constructionMode = false,
-    this.showCollisionArea = false,
-    this.showFPS = false,
-    this.gameController,
-    this.constructionModeColor,
-    this.collisionAreaColor,
-    this.lightingColorGame,
-    this.progress,
-    this.cameraConfig,
-    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
-    this.progressTransitionDuration,
-    this.colorFilter,
-    this.components,
-    this.overlayBuilderMap,
-    this.initialActiveOverlays,
-    this.onTapDown,
-    this.onTapUp,
-    this.onReady,
-  }) : super(key: key);
+  const BonfireTiledWidget(
+      {Key? key,
+      required this.map,
+      this.joystick,
+      this.player,
+      this.interface,
+      this.background,
+      this.constructionMode = false,
+      this.showCollisionArea = false,
+      this.showFPS = false,
+      this.gameController,
+      this.constructionModeColor,
+      this.collisionAreaColor,
+      this.lightingColorGame,
+      this.progress,
+      this.cameraConfig,
+      this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+      this.progressTransitionDuration,
+      this.colorFilter,
+      this.components,
+      this.overlayBuilderMap,
+      this.initialActiveOverlays,
+      this.onTapDown,
+      this.onTapUp,
+      this.onReady,
+      this.customGameBuilder})
+      : super(key: key);
+
   @override
   _BonfireTiledWidgetState createState() => _BonfireTiledWidgetState();
 }
@@ -148,32 +151,62 @@ class _BonfireTiledWidgetState extends State<BonfireTiledWidget>
 
       List<GameComponent> components = (tiled.components ?? []);
       if (widget.components != null) components.addAll(widget.components!);
-      _game = BonfireGame(
-        context: context,
-        joystickController: widget.joystick,
-        player: widget.player,
-        interface: widget.interface,
-        map: tiled.map,
-        components: components,
-        background: widget.background,
-        constructionMode: widget.constructionMode,
-        showCollisionArea: widget.showCollisionArea,
-        showFPS: widget.showFPS,
-        gameController: widget.gameController,
-        constructionModeColor:
-            widget.constructionModeColor ?? Colors.cyan.withOpacity(0.5),
-        collisionAreaColor: widget.collisionAreaColor ??
-            Colors.lightGreenAccent.withOpacity(0.5),
-        lightingColorGame: widget.lightingColorGame,
-        cameraConfig: widget.cameraConfig,
-        colorFilter: widget.colorFilter,
-        onTapDown: widget.onTapDown,
-        onTapUp: widget.onTapUp,
-        onReady: (game) {
-          _showProgress(false);
-          widget.onReady?.call(game);
-        },
-      );
+      final builder = widget.customGameBuilder;
+      if (builder != null) {
+        _game = builder.call(
+          context: context,
+          joystickController: widget.joystick,
+          player: widget.player,
+          interface: widget.interface,
+          map: tiled.map,
+          components: components,
+          background: widget.background,
+          constructionMode: widget.constructionMode,
+          showCollisionArea: widget.showCollisionArea,
+          showFPS: widget.showFPS,
+          gameController: widget.gameController,
+          constructionModeColor:
+              widget.constructionModeColor ?? Colors.cyan.withOpacity(0.5),
+          collisionAreaColor: widget.collisionAreaColor ??
+              Colors.lightGreenAccent.withOpacity(0.5),
+          lightingColorGame: widget.lightingColorGame,
+          cameraConfig: widget.cameraConfig,
+          colorFilter: widget.colorFilter,
+          onTapDown: widget.onTapDown,
+          onTapUp: widget.onTapUp,
+          onReady: (game) {
+            _showProgress(false);
+            widget.onReady?.call(game);
+          },
+        );
+      } else {
+        _game = BonfireGame(
+          context: context,
+          joystickController: widget.joystick,
+          player: widget.player,
+          interface: widget.interface,
+          map: tiled.map,
+          components: components,
+          background: widget.background,
+          constructionMode: widget.constructionMode,
+          showCollisionArea: widget.showCollisionArea,
+          showFPS: widget.showFPS,
+          gameController: widget.gameController,
+          constructionModeColor:
+              widget.constructionModeColor ?? Colors.cyan.withOpacity(0.5),
+          collisionAreaColor: widget.collisionAreaColor ??
+              Colors.lightGreenAccent.withOpacity(0.5),
+          lightingColorGame: widget.lightingColorGame,
+          cameraConfig: widget.cameraConfig,
+          colorFilter: widget.colorFilter,
+          onTapDown: widget.onTapDown,
+          onTapUp: widget.onTapUp,
+          onReady: (game) {
+            _showProgress(false);
+            widget.onReady?.call(game);
+          },
+        );
+      }
       setState(() {});
     } catch (e) {
       print('(BonfireTiledWidget) Error: $e');

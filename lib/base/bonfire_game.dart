@@ -12,6 +12,30 @@ import 'package:flame/input.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+typedef GameBuilder = BonfireGame Function({
+  required BuildContext context,
+  required MapGame map,
+  JoystickController? joystickController,
+  Player? player,
+  GameInterface? interface,
+  List<Enemy>? enemies,
+  List<GameDecoration>? decorations,
+  List<GameComponent>? components,
+  GameBackground? background,
+  bool? constructionMode,
+  bool? showCollisionArea,
+  GameController? gameController,
+  Color? constructionModeColor,
+  Color? collisionAreaColor,
+  Color? lightingColorGame,
+  bool showFPS,
+  ValueChanged<BonfireGame>? onReady,
+  TapInGame? onTapDown,
+  TapInGame? onTapUp,
+  GameColorFilter? colorFilter,
+  CameraConfig? cameraConfig,
+});
+
 /// Is a customGame where all magic of the Bonfire happen.
 class BonfireGame extends BaseGame
     with KeyboardEvents
