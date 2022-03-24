@@ -50,7 +50,7 @@ class BonfireGame extends BaseGame
 
   /// Represents the character controlled by the user in the game. Instances of this class has actions and movements ready to be used and configured.
   @override
-  final Player? player;
+  Player? player;
 
   /// The way you can draw things like life bars, stamina and settings. In another words, anything that you may add to the interface to the game.
   final GameInterface? interface;
