@@ -206,7 +206,7 @@ class BonfireGame extends BaseGame
     if (gameController != null) {
       await add(gameController!);
     }
-    isLoaded = true;
+    // isLoaded = true;
   }
 
   @override
@@ -428,5 +428,28 @@ class BonfireGame extends BaseGame
     } else {
       print('$target is not a JoystickListener');
     }
+  }
+
+  @override
+  void addParticle(
+    Particle particle, {
+    Vector2? position,
+    Vector2? size,
+    Vector2? scale,
+    double? angle,
+    Anchor? anchor,
+    int? priority = LayerPriority.MAP + 1,
+  }) {
+    this.add(
+      ParticleSystemComponent(
+        particle: particle,
+        position: position,
+        size: size,
+        scale: scale,
+        angle: angle,
+        anchor: anchor,
+        priority: priority,
+      ),
+    );
   }
 }

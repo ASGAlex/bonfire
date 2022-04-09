@@ -72,13 +72,10 @@ abstract class GameComponent extends PositionComponent
     if (!hasGameRef) return [];
     final map = gameRef.map;
     if (map.getRendered().isNotEmpty) {
-      Rect position = this.isObjectCollision()
-          ? (this as ObjectCollision).rectCollision
-          : this.toRect();
       return map
           .getRendered()
           .where((element) {
-            return (element.overlaps(position) &&
+            return (element.overlaps(rectConsideringCollision) &&
                 (element.type?.isNotEmpty ?? false));
           })
           .map<String>((e) => e.type!)
@@ -102,13 +99,11 @@ abstract class GameComponent extends PositionComponent
     if (!hasGameRef) return null;
     final map = gameRef.map;
     if (map.tiles.isNotEmpty) {
-      Rect position = this.isObjectCollision()
-          ? (this as ObjectCollision).rectCollision
-          : this.toRect();
       return map
           .getRendered()
           .where((element) {
-            return (element.overlaps(position) && (element.properties != null));
+            return (element.overlaps(rectConsideringCollision) &&
+                (element.properties != null));
           })
           .map<Map<String, dynamic>>((e) => e.properties!)
           .toList();
